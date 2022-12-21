@@ -72,6 +72,9 @@ def rover_coords(binary_img):
     :return: Tuple of Numpy 1d float arrays of the x and y pixels after the
         original pixels have been translated
     """
+    
+    """
+    # was
     # Identify nonzero pixels
     ypos, xpos = binary_img.nonzero()
     # Translate the pixel positions with reference to the rover position being
@@ -79,7 +82,19 @@ def rover_coords(binary_img):
     x_pixel = np.absolute(ypos - binary_img.shape[0]).astype(np.float)
     y_pixel = -(xpos - binary_img.shape[0]).astype(np.float)
     return x_pixel, y_pixel
-
+    """
+    
+    
+    # Identify nonzero pixels
+    ypos, xpos = binary_img.nonzero()
+    # Calculate pixel positions with reference to the rover position being at the 
+    # center bottom of the image.  
+    x_pixel = -(ypos - binary_img.shape[0]).astype(np.float32)
+    y_pixel = -(xpos - binary_img.shape[0]).astype(np.float32)
+    
+    return x_pixel, y_pixel
+    
+    
 
 def to_polar_coords(x_pixel, y_pixel):
     """Convert the cartesian coordinates (x, y) to polar coordinates (distance,
@@ -218,7 +233,7 @@ def perception_step(Rover):
     rocks_xpix, rocks_ypix = rover_coords(rock_samples)
 
     # 6) Convert rover centric pixel values to world coordinates
-    scale = dst_size * 2 + 3
+    scale = dst_size * 2 + 2
     xpos, ypos = Rover.pos
     yaw = Rover.yaw
     worldmap_size = Rover.worldmap.shape[0]
@@ -228,12 +243,19 @@ def perception_step(Rover):
     rocks_x_world, rocks_y_world = pix_to_world(rocks_xpix, rocks_ypix, xpos, ypos, yaw, worldmap_size, scale)
 
     # 7) Update Rover worldmap (to be displayed on right side of screen)
+    """
     if (Rover.pitch < 0.5 or Rover.pitch > 359.5) and (Rover.roll < 0.5 or Rover.roll > 359.5):
         # Limit world map updates to only images that have limited roll and pitch
         Rover.worldmap[obstacles_y_world, obstacles_x_world, 0] += 1
         Rover.worldmap[rocks_y_world, rocks_x_world, 1] = 255
         Rover.worldmap[navigable_y_world, navigable_x_world, 2] += 1
-
+    """
+    if (Rover.pitch < 1 or Rover.pitch > 359) and (Rover.roll < 1 or Rover.roll > 359):
+    	Rover.worldmap[obstacles_y_world, obstacles_x_world, 0] = 200
+    	#Rover.worldmap[navigable_y_world, navigable_x_world, 0] = 0
+    	Rover.worldmap[rocks_y_world, rocks_x_world, 1] = 200
+    	Rover.worldmap[navigable_y_world, navigable_x_world, 2] = 200
+    
     # 8) Convert rover-centric pixel positions to polar coordinates
     distances, angles = to_polar_coords(navigable_xpix, navigable_ypix)
     # Update Rover pixel distances and angles
