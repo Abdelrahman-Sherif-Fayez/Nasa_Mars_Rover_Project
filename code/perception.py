@@ -65,16 +65,7 @@ def rock_thresh(img):
 
 
 def rover_coords(binary_img):
-    """Convert the binary image to have rover centric coordinates by
-    translating it so that the base of the identified area is at (0, 0). The
-    rover's x axis represents the front of the rover.
-    :param binary_img: Numpy 2d array (x, y) of the binary image
-    :return: Tuple of Numpy 1d float arrays of the x and y pixels after the
-        original pixels have been translated
     """
-    
-    """
-    # was
     # Identify nonzero pixels
     ypos, xpos = binary_img.nonzero()
     # Translate the pixel positions with reference to the rover position being
@@ -83,7 +74,6 @@ def rover_coords(binary_img):
     y_pixel = -(xpos - binary_img.shape[0]).astype(np.float)
     return x_pixel, y_pixel
     """
-    
     
     # Identify nonzero pixels
     ypos, xpos = binary_img.nonzero()
