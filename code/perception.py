@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import matplotlib.image as mpimg
 import time
 
 # Identify pixels above the threshold
@@ -63,30 +64,64 @@ def rock_thresh(img):
     mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
     return mask 
 
+"""
+binaryImage = mpimg.imread('../calibration_images/map_bw.png')
+ypos1, xpos1 = binaryImage.nonzero()
+def removeOutPixels(ypos2,xpos2):
+    xpos3 = np.zeros(0)
+    ypos3 = np.zeros(0)
 
-def rover_coords(binary_img):
-    """Convert the binary image to have rover centric coordinates by
-    translating it so that the base of the identified area is at (0, 0). The
-    rover's x axis represents the front of the rover.
-    :param binary_img: Numpy 2d array (x, y) of the binary image
-    :return: Tuple of Numpy 1d float arrays of the x and y pixels after the
-        original pixels have been translated
-    """
-    
-    """
-    # was
+    for j in range(0, ypos2.size-1):  
+        isIN = 0
+        for i in range(0, ypos1.size-1):
+            if (ypos2[j]  == ypos1[i]) & (xpos2[j] == xpos1[i]):
+                isIN = 1         
+                break
+        if(isIN == 1):
+            xpos3 = np.append(xpos3, xpos1[i])
+            ypos3 = np.append(ypos3, ypos1[i])
+    return ypos3,xpos3
+ 
+def rover_coords_mod_v1(binary_img):
     # Identify nonzero pixels
     ypos, xpos = binary_img.nonzero()
-    # Translate the pixel positions with reference to the rover position being
-    #   at the center bottom of the image. Must flip the xpos and ypos.
-    x_pixel = np.absolute(ypos - binary_img.shape[0]).astype(np.float)
-    y_pixel = -(xpos - binary_img.shape[0]).astype(np.float)
+    
+    # remove outPixels
+    ypos, xpos = removeOutPixels(ypos, xpos)
+    
+    # Calculate pixel positions with reference to the rover position being at the 
+    # center bottom of the image.  
+    x_pixel = -(ypos - binary_img.shape[0]).astype(np.float32)
+    y_pixel = -(xpos - binary_img.shape[0]).astype(np.float32)
+    
     return x_pixel, y_pixel
-    """
-    
-    
+"""
+ 
+   
+img1 = mpimg.imread('../calibration_images/map_bw.png')
+dim = (320, 160)
+img1 = cv2.resize(img1, dim, interpolation = cv2.INTER_AREA)
+def rover_coords_mod(binary_img):    
+    mult_img = np.multiply(img1, binary_img)    
     # Identify nonzero pixels
-    ypos, xpos = binary_img.nonzero()
+    ypos, xpos = mult_img.nonzero()  
+    # Calculate pixel positions with reference to the rover position being at the center bottom of the image.  
+    x_pixel = -(ypos - binary_img.shape[0]).astype(np.float32)
+    y_pixel = -(xpos - binary_img.shape[0]).astype(np.float32)
+    
+    return x_pixel, y_pixel
+    
+    
+    
+
+
+img3 = np.zeros_like(img1[:,:])
+below_thresh = (img1 == 0)
+img3[below_thresh] = 1   
+def rover_coords_2(binary_img): 
+    mult_img = np.multiply(img3, binary_img)    
+    # Identify nonzero pixels
+    ypos, xpos = mult_img.nonzero()      
     # Calculate pixel positions with reference to the rover position being at the 
     # center bottom of the image.  
     x_pixel = -(ypos - binary_img.shape[0]).astype(np.float32)
@@ -95,6 +130,26 @@ def rover_coords(binary_img):
     return x_pixel, y_pixel
     
     
+
+ 
+def rover_coords(binary_img):
+    """Convert the binary image to have rover centric coordinates by
+    translating it so that the base of the identified area is at (0, 0). The
+    rover's x axis represents the front of the rover.
+    :param binary_img: Numpy 2d array (x, y) of the binary image
+    :return: Tuple of Numpy 1d float arrays of the x and y pixels after the
+        original pixels have been translated
+    """   
+    # Identify nonzero pixels
+    ypos, xpos = binary_img.nonzero()    
+    # Calculate pixel positions with reference to the rover position being at the 
+    # center bottom of the image.  
+    x_pixel = -(ypos - binary_img.shape[0]).astype(np.float32)
+    y_pixel = -(xpos - binary_img.shape[0]).astype(np.float32)
+    
+    return x_pixel, y_pixel
+    
+       
 
 def to_polar_coords(x_pixel, y_pixel):
     """Convert the cartesian coordinates (x, y) to polar coordinates (distance,
@@ -189,6 +244,8 @@ def perspect_transform(img, src, dst):
     warped = cv2.warpPerspective(img, M, (img.shape[1], img.shape[0]))
     return warped
 
+    
+       
 
 def perception_step(Rover):
     """Calculate the Rover's current environment from the position values and
@@ -218,7 +275,7 @@ def perception_step(Rover):
     warped = perspect_transform(img=img, src=src, dst=dst)
 
     # 3) Apply color threshold to identify navigable terrain/obstacles/rock samples
-    navigable = navigable_thresh(img=warped, rgb_thresh=(160, 160, 160)) 
+    navigable = navigable_thresh(img=warped, rgb_thresh=(170, 170, 170))   # was 160,160,160
     obstacles = obstacle_thresh(img=warped, rgb_thresh=(140, 140, 140))
     rock_samples = rock_thresh(img=warped)
 
@@ -228,8 +285,8 @@ def perception_step(Rover):
     Rover.vision_image[:,:,2] = navigable * 255 # display white pixels in navigable image in green
 
     # 5) Convert map image pixel values to rover centric coordinates
-    navigable_xpix, navigable_ypix = rover_coords(navigable)
-    obstacles_xpix, obstacles_ypix = rover_coords(obstacles)
+    navigable_xpix, navigable_ypix = rover_coords_mod(navigable)
+    obstacles_xpix, obstacles_ypix = rover_coords_2(obstacles)
     rocks_xpix, rocks_ypix = rover_coords(rock_samples)
 
     # 6) Convert rover centric pixel values to world coordinates
@@ -252,7 +309,7 @@ def perception_step(Rover):
     """
     if (Rover.pitch < 1 or Rover.pitch > 359) and (Rover.roll < 1 or Rover.roll > 359):
     	Rover.worldmap[obstacles_y_world, obstacles_x_world, 0] = 200
-    	#Rover.worldmap[navigable_y_world, navigable_x_world, 0] = 0
+    	Rover.worldmap[navigable_y_world, navigable_x_world, 0] = 0
     	Rover.worldmap[rocks_y_world, rocks_x_world, 1] = 200
     	Rover.worldmap[navigable_y_world, navigable_x_world, 2] = 200
     
