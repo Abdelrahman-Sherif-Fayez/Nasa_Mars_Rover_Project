@@ -1,9 +1,9 @@
+            
 import numpy as np
 
 
 # This is where you can build a decision tree for determining throttle, brake and steer 
 # commands based on the output of the perception_step() function
-
 
 # Collision Adjustment=====================================================
 # Attempts to over-ride wall / nav pixel navigation decisions 
@@ -56,11 +56,10 @@ def pickle(Rover, time_limit):
     else:
         Rover.stopped_time = None
     return Rover
-def decision_step(Rover):
-# Implement conditionals to decide what to do given perception data
-    # Here you're all set up with some basic functionality but you'll need to
-    # improve on this decision tree to do a good job of navigating autonomously!
     
+
+def decision_step(Rover):
+
     # returning home
     if Rover.samples_collected == 4 or Rover.mapping_percentage > 95.0:
         print('RETURNING HOME')
@@ -70,8 +69,12 @@ def decision_step(Rover):
             Rover.steer = 0
             print('congratulations! rover at home')
             return Rover
-        
-        
+            
+            
+    # Implement conditionals to decide what to do given perception data
+    # Here you're all set up with some basic functionality but you'll need to
+    # improve on this decision tree to do a good job of navigating autonomously!
+
     if Rover.mode == 'pickle':
         
         # PICKLE: Intended to ensure that the Rover always reliably 'gets out of
@@ -153,8 +156,8 @@ def decision_step(Rover):
             Rover.mode = 'azimuth'
         print ("===================LEAVING PICKLE===================")
         return Rover
-    
-  
+ 
+
 
 
 
@@ -246,10 +249,8 @@ def decision_step(Rover):
         
         
         
-         
-    
-    
-    
+        
+        
     if Rover.mode == 'azimuth':
         
     # In this state, the Rover will stop and turn until it's yaw is approx = to the Rover.tgt_angle
@@ -279,9 +280,18 @@ def decision_step(Rover):
         if abs(Rover.yaw - Rover.tgt_angle) < 3:
             Rover.mode = 'forward'
         print("========================LEAVING AZIMUTH===========================")
-        return Rover    
+        return Rover
     
-     # Do we have any valid Nav agles? We could just be looking at a black wall.
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    # Do we have any valid Nav agles? We could just be looking at a black wall.
     if Rover.nav_angles is not None:
         
         if Rover.mode == 'forward':
@@ -440,7 +450,8 @@ def decision_step(Rover):
                     Rover.stopped_time = None
         print("=========================LEAVING==FORWARD===========================")   
         return Rover
-    
+
+                            
     # There were no nav angles present...go straight into a pickle
     else:
         print("Else Pickle at End")
@@ -451,4 +462,3 @@ def decision_step(Rover):
         Rover.send_pickup = True
     print("Function Return, Mode: ", Rover.mode)
     return 
-
