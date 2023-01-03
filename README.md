@@ -110,7 +110,7 @@ def perspect_transform(img, src, dst):
     # Return the binary image
     return color_select
 ``` 
- ***Contours (Not part of core submission requirments)***
+ ***Contours***
 
 In an attempt to make the rover a wall crawler it seemed that one approach would be to locate the interface between the canyon wall and the sandy floor and use that for guidance. To that end functionality to detect contours was added to the perception module. The contours are extracted from the image using the OpenCV function [findContours](https://docs.opencv.org/2.4/modules/imgproc/doc/structural_analysis_and_shape_descriptors.html#findcontours). Since the result contains multiple contours, the largest one is extracted as one most likely to be of interest for wall navigation. Once this is complete a final step of masking off parts of the contour immediately to the right of the rover is performed. The a sample result of the contours, overlayed on the source image is shown below. The blue section represents to portion of the contour used for navigating along the wall. The contour information is also updated in real time on the rover Hud with the region of interest highlighted in yellow.
 
@@ -155,11 +155,11 @@ In an attempt to make the rover a wall crawler it seemed that one approach would
     # the CHAIN_APPROX_NONE ensures we get all points without compression/ extrapolation.
     # hierarchy returns nested contour heirarchies, which we aren't using
     imcont, contours, hierarchy = cv2.findContours(imcont,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
-    return color_select, imbin, contours
+    return thresh_img, imbin, contours
 ```
 
 
-***Collision ROI-Region of Interest (Not part of core submission requirments)***
+***Collision ROI-Region of Interest***
  
  Although the results of navigating off of the navigable pixels were passable, and augmenting that with navigation by wall pixels was better, there were still times when the rover would run into obstacles in it's path. A fully developed approach to address this would have been to build a model for avoiding collisions using the data stored in the world map and planning routes around obstacles. However, a more simplistic approach was leveraged that improves the performance avoiding collisions without the complication of developing such a model. The approach used here is to select a small area (20px wide x 20px deep) in front of the rover and use it to detect obstacles in real time. The decision script then uses this information to take action in an attempt to avoid a collision. The primary drawback to this approach is that the camera on the rover has a FOV that can not see obstacles immediately to the side, or above the rover. So while this addition yielded an improvement, there are many locations in the environment where the rover has a clear FOV (no obstacles), but can still collide with or get hung up on obstacles.
  
