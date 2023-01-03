@@ -1,4 +1,5 @@
-# Nasa Rover Project## Project: Search and Sample Return
+# Nasa Rover Project
+## Project: Search and Sample Return
 
 **Summary Results**
 The rover was run for two 15 minute runs, using the perception.py and decision.py files found in this project and the results were as follows:
