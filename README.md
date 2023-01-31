@@ -21,7 +21,7 @@ Included in Jupyter Notebook to perform various steps of the project
         160 pixels vertically
         320 pixels horizontally
         
-2- 	Define source and destination points for generating mask which will helps to get prespective transform 
+2- 	Define source and destination points for generating mask which will helps to get prespective transform
 	the destination points will be 10 pixels* 10 pixels but we know that the size of grid 1 pixel *1 pixel
 	so we need scale to be 10  --> but we did not make this scale as this will decrease fidelity  
 	we choose scale between 15 and 20 so that we have good fidelity  (pixel will be represented in less that one pixel)
