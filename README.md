@@ -15,9 +15,7 @@ To navigate autonomously we have to call drive_rover.py. We have to complete per
 ## 3.Data Analysis
 Included in Jupyter Notebook to perform various steps of the project
 
-## Pipeline
-
-### Pipeline of Preception Step:
+## Pipeline of Preception Step:
 
 1-      size of input image(image came from camera) is 160*320 pxiels   
         160 pixels vertically
