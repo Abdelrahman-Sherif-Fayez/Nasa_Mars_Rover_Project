@@ -1,7 +1,6 @@
-# Nasa Rover Project
+# overview Project
 This project is modeled after the NASA Sample Return Robot Challenge and we can get experience with the three essential elements of robotics, which are perception, decision making and actuation. We will carry out this project in a simulator environment built with the Unity game engine.
-
-
+for more details and information look at pdfs folder (this folder contains project description and delivered pdf)
 
 ![rover_image](https://user-images.githubusercontent.com/92469329/206799438-fbabbb93-415d-46ab-8715-c638a9858daa.jpg)
 
