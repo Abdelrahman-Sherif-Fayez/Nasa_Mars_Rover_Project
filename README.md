@@ -92,7 +92,7 @@ Included in Jupyter Notebook to perform various steps of the project
 	c-	applying thresholding to to identify obstacles from coll_roi (part of prescetive transform of camera image which represent 2 m^2 infront of rover )
 		and called the result is color_thresh
 
-7-	Finding edge pixels between the sand and teh wall using get_contours function
+7-	Finding edge pixels between the sand and the wall using get_contours function
 	
 	get_contours is function take 2 parametes which is used to get array of arrays (each inner array contain pixels for a contour in image)
 		parameter1: wraped image
